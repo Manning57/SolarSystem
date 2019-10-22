@@ -232,55 +232,58 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		Matrix3D pMat = perspective(60.0f, aspect, 0.1f, 1000.0f);
 
 		// push view matrix onto the stack
-		mvStack.pushMatrix(); // Save global reference system
-		mvStack.translate(-cameraX, -cameraY, -cameraZ);
-		mvStack.rotate(1002.25f, rotX + 0.0000000000001f, rotY, rotZ);
-
+		mvStack.pushMatrix(); // Save global reference system		
+		
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				int keyCode = e.getKeyCode();
 				if (keyCode == 81) {// q, move up
-					cameraY = cameraY + 0.00025f;
+					cameraY = cameraY + 0.0005f;
 				}
 				if (keyCode == 65) {// a, strafe left
-					cameraX = cameraX - 0.00025f;
+					cameraX = cameraX - 0.0005f;
 				}
 				if (keyCode == 69) {// e, move down
-					cameraY = cameraY - 0.00025f;
+					cameraY = cameraY - 0.0005f;
 				}
 				if (keyCode == 68) {// d, strafe right
-					cameraX = cameraX + 0.00025f;
+					cameraX = cameraX + 0.0005f;
 				}
 				if (keyCode == 87) {// w, move forward
-					cameraZ = cameraZ - 0.00025f;
+					cameraZ = cameraZ - 0.0005f;
 				}
 				if (keyCode == 83) {// s move backward
-					cameraZ = cameraZ + 0.00025f;
+					cameraZ = cameraZ + 0.0005f;
 				}
 				if (keyCode == 39) {// --> pan right
-					rotY = rotY - 0.00000025f;
+					rotY = rotY + 0.1f;
+					mvStack.rotate(0.005, 0.0, 0.1, 0.0); 
 				}
 				if (keyCode == 37) {// <-- pan left
-					rotY = rotY + 0.00000025f;
+					rotY = rotY - 0.1f;
+					mvStack.rotate(0.005, 0.0, -0.1, 0.0); 
 				}
 				if (keyCode == 38) {// |^ pitch up
-					rotX = rotX + 0.00000025f;
+					rotX = rotX - 0.1f;
+					mvStack.rotate(0.005, -0.1, 00.0, 0.0); 
 				}
 				if (keyCode == 40) {// |v pitch down
-					rotX = rotX - 0.00000025f;
+					rotX = rotX + 0.1f;
+					mvStack.rotate(0.005, 0.1, 0.0, 0.0); 
 				}
 				if (keyCode == 32) {
 					if (vis > 0) {
 						vis = -1;
 					} else {
 						vis = 1;
-
 					}
 				}
 			}
 		});
-
+		
+		mvStack.translate(-cameraX, -cameraY, -cameraZ);
+		
 		double amt = (double) (System.currentTimeMillis()) / 1000.0;
 
 		gl.glUniformMatrix4fv(proj_loc, 1, false, pMat.getFloatValues(), 0);
@@ -310,7 +313,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.pushMatrix(); // Save sun's position (no rotation)
 		mvStack.translate(Math.sin(amt) * 3.0f, 0.0f, Math.cos(amt) * 3.0f); // Move to earth's position
 		mvStack.pushMatrix(); // Save earth's position - translated
-		mvStack.rotate((System.currentTimeMillis()) / 10.0, 0.5, 1.0, 0.0); // Rotate the earth
+		mvStack.rotate((System.currentTimeMillis()/2) / 10.0, 0.5, 1.0, 0.0); // Rotate the earth
 		mvStack.scale(0.75, 0.75, 0.75); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 2);
 		mvStack.popMatrix(); // Go back to earth's position - translated
@@ -319,7 +322,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.pushMatrix(); // Save planet's position - translated (no need to save if we only have one
 								// moon)
 		mvStack.translate(0.0f, -Math.sin(amt) * 1.33f, Math.cos(amt) * 1.33f); // Translate WRT planet
-		mvStack.rotate((System.currentTimeMillis()) / 10.0, 0.0, 1.0, 0.0); // Rotate WRT planet x-axis
+		mvStack.rotate((System.currentTimeMillis()/5) / 10.0, 0.0, 1.0, 0.0); // Rotate WRT planet x-axis
 		mvStack.scale(0.25, 0.25, 0.25); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 3);
 		mvStack.popMatrix();// Go back to planet's position - translated
@@ -329,7 +332,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.pushMatrix(); // Save sun's position (no rotation)
 		mvStack.translate(Math.sin(amt) * 5.0f, Math.sin(amt) * 1.0f, Math.cos(amt) * 5.0f); // Move to mars's position
 		mvStack.pushMatrix(); // Save mars's position - translated
-		mvStack.rotate((System.currentTimeMillis()) / 10.0, 0.0, -1.0, 0.0); // Rotate mars
+		mvStack.rotate((System.currentTimeMillis()/7) / 10.0, 0.0, -1.0, 0.0); // Rotate mars
 		mvStack.scale(0.75, 0.75, 0.75); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 4);
 		mvStack.popMatrix(); // Go back to mars's position - translated
@@ -337,7 +340,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		// -----------------------mars's moon
 		mvStack.pushMatrix(); // Save planet's position - translated
 		mvStack.translate(Math.sin(amt) * 1.33f, Math.sin(amt) * 1.33f, Math.cos(amt) * 1.33f); // Translate WRT planet
-		mvStack.rotate((System.currentTimeMillis()) / 10.0, 0.0, 2.0, 5.0); // Rotate WRT planet x-axis
+		mvStack.rotate((System.currentTimeMillis()/10) / 10.0, 0.0, 2.0, 5.0); // Rotate WRT planet x-axis
 		mvStack.scale(0.25, 0.25, 0.25); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 5);
 		mvStack.popMatrix();// Go back to planet's position - translated
@@ -348,7 +351,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.translate(Math.sin(amt) * 7.0f, -Math.sin(amt) * 2.0f, Math.cos(amt) * 7.0f); // Move to neptunes's
 																								// position
 		mvStack.pushMatrix(); // Save neptunes's position - translated
-		mvStack.rotate((System.currentTimeMillis()) / 10.0, -2.0, 1.0, -6.0); // Rotate neptune
+		mvStack.rotate((System.currentTimeMillis()/3) / 10.0, -2.0, 1.0, -6.0); // Rotate neptune
 		mvStack.scale(1.75, 1.75, 1.75); // Scale object
 		drawP(gl, mv_loc);
 
