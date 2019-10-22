@@ -83,8 +83,10 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 	private int prismTexture;
 	private Texture joglPrismTexture;
 
+	// initializing sphere object
 	private Sphere mySphere = new Sphere(24);
 
+	// initializing matrix stack
 	private MatrixStack mvStack = new MatrixStack(20);
 
 	public Prog04_4_matrixStack() {
@@ -103,6 +105,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 
 	}
 
+	// draws a sphere with appropriate planet texture
 	private void drawPlanet(GL4 gl, int mv_loc, int numVerts, int planet) {
 		gl.glUniformMatrix4fv(mv_loc, 1, false, mvStack.peek().getFloatValues(), 0); // Draw rotated sun
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
@@ -144,6 +147,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		gl.glDrawArrays(GL_TRIANGLES, 0, numVerts);
 	}
 
+	// draws the X axis
 	private void drawX(GL4 gl, int mv_loc) {
 		gl.glUniformMatrix4fv(mv_loc, 1, false, mvStack.peek().getFloatValues(), 0); // Draw rotated sun
 
@@ -160,6 +164,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
+	// draws the Y axis
 	private void drawY(GL4 gl, int mv_loc) {
 		gl.glUniformMatrix4fv(mv_loc, 1, false, mvStack.peek().getFloatValues(), 0); // Draw rotated sun
 
@@ -176,6 +181,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
+	// draws the Z axis
 	private void drawZ(GL4 gl, int mv_loc) {
 		gl.glUniformMatrix4fv(mv_loc, 1, false, mvStack.peek().getFloatValues(), 0); // Draw rotated sun
 
@@ -192,6 +198,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		gl.glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
+	// draws the pentagonal prism
 	private void drawP(GL4 gl, int mv_loc) {
 		gl.glUniformMatrix4fv(mv_loc, 1, false, mvStack.peek().getFloatValues(), 0); // Draw rotated sun
 
@@ -232,8 +239,8 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		Matrix3D pMat = perspective(60.0f, aspect, 0.1f, 1000.0f);
 
 		// push view matrix onto the stack
-		mvStack.pushMatrix(); // Save global reference system		
-		
+		mvStack.pushMatrix(); // Save global reference system
+
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -257,20 +264,20 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 					cameraZ = cameraZ + 0.0005f;
 				}
 				if (keyCode == 39) {// --> pan right
-					rotY = rotY + 0.1f;
-					mvStack.rotate(0.005, 0.0, 0.1, 0.0); 
+					//rotY = rotY + 0.1f;
+					mvStack.rotate(0.005, 0.0, 0.1, 0.0);
 				}
 				if (keyCode == 37) {// <-- pan left
-					rotY = rotY - 0.1f;
-					mvStack.rotate(0.005, 0.0, -0.1, 0.0); 
+					//rotY = rotY - 0.1f;
+					mvStack.rotate(0.005, 0.0, -0.1, 0.0);
 				}
 				if (keyCode == 38) {// |^ pitch up
-					rotX = rotX - 0.1f;
-					mvStack.rotate(0.005, -0.1, 00.0, 0.0); 
+					//rotX = rotX - 0.1f;
+					mvStack.rotate(0.005, -0.1, 00.0, 0.0);
 				}
 				if (keyCode == 40) {// |v pitch down
-					rotX = rotX + 0.1f;
-					mvStack.rotate(0.005, 0.1, 0.0, 0.0); 
+					//rotX = rotX + 0.1f;
+					mvStack.rotate(0.005, 0.1, 0.0, 0.0);
 				}
 				if (keyCode == 32) {
 					if (vis > 0) {
@@ -281,9 +288,9 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 				}
 			}
 		});
-		
+
 		mvStack.translate(-cameraX, -cameraY, -cameraZ);
-		
+
 		double amt = (double) (System.currentTimeMillis()) / 1000.0;
 
 		gl.glUniformMatrix4fv(proj_loc, 1, false, pMat.getFloatValues(), 0);
@@ -313,7 +320,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.pushMatrix(); // Save sun's position (no rotation)
 		mvStack.translate(Math.sin(amt) * 3.0f, 0.0f, Math.cos(amt) * 3.0f); // Move to earth's position
 		mvStack.pushMatrix(); // Save earth's position - translated
-		mvStack.rotate((System.currentTimeMillis()/2) / 10.0, 0.5, 1.0, 0.0); // Rotate the earth
+		mvStack.rotate((System.currentTimeMillis() / 2) / 10.0, 0.5, 1.0, 0.0); // Rotate the earth
 		mvStack.scale(0.75, 0.75, 0.75); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 2);
 		mvStack.popMatrix(); // Go back to earth's position - translated
@@ -322,7 +329,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.pushMatrix(); // Save planet's position - translated (no need to save if we only have one
 								// moon)
 		mvStack.translate(0.0f, -Math.sin(amt) * 1.33f, Math.cos(amt) * 1.33f); // Translate WRT planet
-		mvStack.rotate((System.currentTimeMillis()/5) / 10.0, 0.0, 1.0, 0.0); // Rotate WRT planet x-axis
+		mvStack.rotate((System.currentTimeMillis() / 5) / 10.0, 0.0, 1.0, 0.0); // Rotate WRT planet x-axis
 		mvStack.scale(0.25, 0.25, 0.25); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 3);
 		mvStack.popMatrix();// Go back to planet's position - translated
@@ -332,7 +339,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.pushMatrix(); // Save sun's position (no rotation)
 		mvStack.translate(Math.sin(amt) * 5.0f, Math.sin(amt) * 1.0f, Math.cos(amt) * 5.0f); // Move to mars's position
 		mvStack.pushMatrix(); // Save mars's position - translated
-		mvStack.rotate((System.currentTimeMillis()/7) / 10.0, 0.0, -1.0, 0.0); // Rotate mars
+		mvStack.rotate((System.currentTimeMillis() / 7) / 10.0, 0.0, -1.0, 0.0); // Rotate mars
 		mvStack.scale(0.75, 0.75, 0.75); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 4);
 		mvStack.popMatrix(); // Go back to mars's position - translated
@@ -340,7 +347,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		// -----------------------mars's moon
 		mvStack.pushMatrix(); // Save planet's position - translated
 		mvStack.translate(Math.sin(amt) * 1.33f, Math.sin(amt) * 1.33f, Math.cos(amt) * 1.33f); // Translate WRT planet
-		mvStack.rotate((System.currentTimeMillis()/10) / 10.0, 0.0, 2.0, 5.0); // Rotate WRT planet x-axis
+		mvStack.rotate((System.currentTimeMillis() / 10) / 10.0, 0.0, 2.0, 5.0); // Rotate WRT planet x-axis
 		mvStack.scale(0.25, 0.25, 0.25); // Scale object
 		drawPlanet(gl, mv_loc, numVerts, 5);
 		mvStack.popMatrix();// Go back to planet's position - translated
@@ -351,7 +358,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		mvStack.translate(Math.sin(amt) * 7.0f, -Math.sin(amt) * 2.0f, Math.cos(amt) * 7.0f); // Move to neptunes's
 																								// position
 		mvStack.pushMatrix(); // Save neptunes's position - translated
-		mvStack.rotate((System.currentTimeMillis()/3) / 10.0, -2.0, 1.0, -6.0); // Rotate neptune
+		mvStack.rotate((System.currentTimeMillis() / 3) / 10.0, -2.0, 1.0, -6.0); // Rotate neptune
 		mvStack.scale(1.75, 1.75, 1.75); // Scale object
 		drawP(gl, mv_loc);
 
@@ -365,20 +372,26 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 	public void init(GLAutoDrawable drawable) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		rendering_program = createShaderProgram();
+
+		// set up vertices of spheres and pentagonal prisms
 		setupVertices();
+
+		// initializing XYS for camera location/rotation, sphere location, and
+		// pentagonal prism location
 		cameraX = 0.0f;
 		cameraY = 0.0f;
 		cameraZ = 12.0f;
-		sphLocX = 0.0f;
-		sphLocY = 0.0f;
-		sphLocZ = 0.0f;
 		rotX = 0.0f;
 		rotY = 0.0f;
 		rotZ = 0.0f;
+		sphLocX = 0.0f;
+		sphLocY = 0.0f;
+		sphLocZ = 0.0f;
 		LocX = 0.0f;
 		LocY = 0.0f;
 		LocZ = 0.0f;
 
+		// loading planet textures
 		joglEarthTexture = loadTexture("ModelsTextures/PlanetPixelEmporium/earthmap1k.jpg");
 		earthTexture = joglEarthTexture.getTextureObject();
 
@@ -405,17 +418,18 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 
 		joglPrismTexture = loadTexture("ModelsTextures/me.jpg");
 		prismTexture = joglPrismTexture.getTextureObject();
+
 	}
 
-	private void setupVertices() {
-		GL4 gl = (GL4) GLContext.getCurrentGL();
-
+	public float[][] PTNvalues() {
 		Vertex3D[] vertices = mySphere.getVertices();
 		int[] indices = mySphere.getIndices();
 
 		float[] pvalues = new float[indices.length * 3];
 		float[] tvalues = new float[indices.length * 2];
 		float[] nvalues = new float[indices.length * 3];
+
+		float[][] ptnValues = new float[3][1];
 
 		for (int i = 0; i < indices.length; i++) {
 			pvalues[i * 3] = (float) (vertices[indices[i]]).getX();
@@ -428,54 +442,69 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 			nvalues[i * 3 + 2] = (float) (vertices[indices[i]]).getNormalZ();
 		}
 
+		ptnValues[0] = pvalues;
+		ptnValues[1] = tvalues;
+		ptnValues[2] = nvalues;
+
+		return ptnValues;
+
+	}
+
+	private float[][] getAxes() {
+		float[][] Axes = new float[3][1];
+
 		float p = 0.01f;
 		float n = -0.01f;
 		float pp = 1000.00f;
 		float nn = -1000.00f;
 
-		float[] xAxis =
+		float[] xAxis = {
 				// back square
-				{ nn, p, n, nn, n, n, pp, n, n, // BBT
-						pp, n, n, pp, p, n, nn, p, n, // BTT
-						// right square
-						pp, n, n, pp, n, p, pp, p, n, // RBT
-						pp, n, p, pp, p, p, pp, p, n, // RTT
-						// front square
-						pp, n, p, nn, n, p, pp, p, p, // BT
-						nn, n, p, nn, p, p, pp, p, p, // TT
-						// let square
-						nn, n, p, nn, n, n, nn, p, p, // LBT
-						nn, n, n, nn, p, n, nn, p, p, // LTT
-						// bottom square
-						nn, n, p, pp, n, p, pp, n, n, // BoT
-						pp, n, n, nn, n, n, nn, n, p, // BoBT
-						// top square
-						nn, p, n, pp, p, n, pp, p, p, // ToBT
-						pp, p, p, nn, p, p, nn, p, n // Tot
-				};
+				nn, p, n, nn, n, n, pp, n, n, // BBT
+				pp, n, n, pp, p, n, nn, p, n, // BTT
+				// right square
+				pp, n, n, pp, n, p, pp, p, n, // RBT
+				pp, n, p, pp, p, p, pp, p, n, // RTT
+				// front square
+				pp, n, p, nn, n, p, pp, p, p, // BT
+				nn, n, p, nn, p, p, pp, p, p, // TT
+				// let square
+				nn, n, p, nn, n, n, nn, p, p, // LBT
+				nn, n, n, nn, p, n, nn, p, p, // LTT
+				// bottom square
+				nn, n, p, pp, n, p, pp, n, n, // BoT
+				pp, n, n, nn, n, n, nn, n, p, // BoBT
+				// top square
+				nn, p, n, pp, p, n, pp, p, p, // ToBT
+				pp, p, p, nn, p, p, nn, p, n // Tot
+		};
+		Axes[0] = xAxis;
 
-		float[] yAxis =
+		float[] yAxis = {
 				// back square
-				{ n, pp, n, n, nn, n, p, nn, n, // BBT
-						p, nn, n, p, pp, n, n, pp, n, // BTT
-						// right square
-						p, nn, n, p, nn, p, p, pp, n, // RBT
-						p, nn, p, p, pp, p, p, pp, n, // RTT
-						// front square
-						p, nn, p, n, nn, p, p, pp, p, // BT
-						n, nn, p, n, pp, p, p, pp, p, // TT
-						// let square
-						n, nn, p, n, nn, n, n, pp, p, // LBT
-						n, nn, n, n, pp, n, n, pp, p, // LTT
-						// bottom square
-						n, nn, p, p, nn, p, p, nn, n, // BoT
-						p, nn, n, n, nn, n, n, nn, p, // BoBT
-						// top square
-						n, pp, n, p, pp, n, p, pp, p, // ToBT
-						p, pp, p, n, pp, p, n, pp, n // Tot
-				};
+				n, pp, n, n, nn, n, p, nn, n, // BBT
+				p, nn, n, p, pp, n, n, pp, n, // BTT
+				// right square
+				p, nn, n, p, nn, p, p, pp, n, // RBT
+				p, nn, p, p, pp, p, p, pp, n, // RTT
+				// front square
+				p, nn, p, n, nn, p, p, pp, p, // BT
+				n, nn, p, n, pp, p, p, pp, p, // TT
+				// let square
+				n, nn, p, n, nn, n, n, pp, p, // LBT
+				n, nn, n, n, pp, n, n, pp, p, // LTT
+				// bottom square
+				n, nn, p, p, nn, p, p, nn, n, // BoT
+				p, nn, n, n, nn, n, n, nn, p, // BoBT
+				// top square
+				n, pp, n, p, pp, n, p, pp, p, // ToBT
+				p, pp, p, n, pp, p, n, pp, n // Tot
+		};
+		Axes[1] = yAxis;
 
-		float[] zAxis = { n, p, nn, n, n, nn, p, n, nn, // BBT
+		float[] zAxis = {
+				// back square
+				n, p, nn, n, n, nn, p, n, nn, // BBT
 				p, n, nn, p, p, nn, n, p, nn, // BTT
 				// right square
 				p, n, nn, p, n, pp, p, p, nn, // RBT
@@ -493,122 +522,159 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 				n, p, nn, p, p, nn, p, p, pp, // ToBT
 				p, p, pp, n, p, pp, n, p, nn // Tot
 		};
+		Axes[2] = zAxis;
 
-		float[] pentagonalPrism = {
-				 0.500f,  0.500f, -0.000f,//A
-				 0.500f, -0.500f, -0.000f,//B 
-				 0.250f, -0.500f, -0.433f,//C
-				 
-				 0.250f, -0.500f, -0.433f,//C
-				 0.250f,  0.500f, -0.433f,//D
-				 0.500f,  0.500f, -0.000f,//A
-				 
-				 0.250f,  0.500f, -0.433f,//E
-				 0.250f, -0.500f, -0.433f,//F
-				-0.250f, -0.500f, -0.433f,//G
-				
-				-0.250f, -0.500f, -0.433f,//G
-				-0.250f,  0.500f, -0.433f,//H
-				 0.250f,  0.500f, -0.433f,//E
-				
-				-0.250f,  0.500f, -0.433f,//I
-				-0.250f, -0.500f, -0.433f,//J
-				-0.500f, -0.500f,  0.000f,//K
-				
-				-0.500f, -0.500f,  0.000f,//K
-				-0.500f,  0.500f,  0.000f,//L
-				-0.250f,  0.500f, -0.433f,//I
-				
-				-0.500f,  0.500f,  0.000f,//M
-				-0.500f, -0.500f,  0.000f,//N
-				-0.250f, -0.500f,  0.433f,//O
-				
-				-0.250f, -0.500f,  0.433f,//O
-				-0.250f,  0.500f,  0.433f,//P
-				-0.500f,  0.500f,  0.000f,//M
-				
-				-0.250f,  0.500f,  0.433f,//Q
-				-0.250f, -0.500f,  0.433f,//R
-				 0.250f, -0.500f,  0.433f,//S
-				 
-				 0.250f, -0.500f,  0.433f,//S
-				 0.250f,  0.500f,  0.433f,//T
-				-0.250f,  0.500f,  0.433f,//Q
-				 
-				 0.250f,  0.500f,  0.433f,//U
-				 0.250f, -0.500f,  0.433f,//V
-				 0.500f, -0.500f, -0.000f,//W
-				 
-				 0.500f, -0.500f, -0.000f,//W
-				 0.500f,  0.500f, -0.000f,//Z
-				 0.250f,  0.500f,  0.433f,//U
-				
-				 0.500f,  0.500f, -0.000f,//A
-				 0.250f,  0.500f, -0.433f,//B
-				 0.000f,  0.500f,  0.000f,//C
-				 
-				 0.250f,  0.500f, -0.433f,//D
-				-0.250f,  0.500f, -0.433f,//E
-				 0.000f,  0.500f,  0.000f,//F
-				 
-				-0.250f,  0.500f, -0.433f,//G
-				-0.500f,  0.500f,  0.000f,//H
-				 0.000f,  0.500f,  0.000f,//I
-				 
-				-0.500f,  0.500f,  0.000f,//J
-				-0.250f,  0.500f,  0.433f,//K
-				 0.000f,  0.500f,  0.000f,//L
-				 
-				-0.250f,  0.500f,  0.433f,//M
-				 0.250f,  0.500f,  0.433f,//N
-				 0.000f,  0.500f,  0.000f,//O
-				 
-				 0.250f,  0.500f,  0.433f,//P
-				 0.500f,  0.500f, -0.000f,//Q
-				 0.000f,  0.500f,  0.000f,//R
-				 
-				 0.250f, -0.500f, -0.433f,//A
-				 0.500f, -0.500f, -0.000f,//B
-				 0.000f, -0.500f,  0.000f,//C
-				 
-				-0.250f, -0.500f, -0.433f,//D
-				 0.250f, -0.500f, -0.433f,//E
-				 0.000f, -0.500f,  0.000f,//F
-				 
-				-0.500f, -0.500f,  0.000f,//G
-				-0.250f, -0.500f, -0.433f,//H
-				 0.000f, -0.500f,  0.000f,//I
-				 
-				-0.250f, -0.500f,  0.433f,//J
-				-0.500f, -0.500f,  0.000f,//K
-				 0.000f, -0.500f,  0.000f,//L
-				 
-				 0.250f, -0.500f,  0.433f,//M
-				-0.250f, -0.500f,  0.433f,//N
-				 0.000f, -0.500f,  0.000f,//O
-				 
-				 0.500f, -0.500f, -0.000f,//P
-				 0.250f, -0.500f,  0.433f,//Q
-				 0.000f, -0.500f,  0.000f,//R
-		};
-		
-		float[] texture_coordinates =
-		{	
-				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-				0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-				1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-					
-		};
-		
+		return Axes;
+	}
+
+	public class hexPrism {
+
+		private float[][] getPrism() {
+			float[][] prism = new float[2][1];
+
+			float h = 0.5f;
+			float q = 0.25f;
+			float f = 0.433f;
+			float z = 0.0f;
+
+			float[] hexagonalPrism = {
+					//
+					h, h, -z, // A
+					h, -h, -z, // B
+					q, -h, -f, // C
+
+					q, -h, -f, // C
+					q, h, -f, // D
+					h, h, -z, // A
+
+					q, h, -f, // E
+					q, -h, -f, // F
+					-q, -h, -f, // G
+
+					-q, -h, -f, // G
+					-q, h, -f, // H
+					q, h, -f, // E
+
+					-q, h, -f, // I
+					-q, -h, -f, // J
+					-h, -h, z, // K
+
+					-h, -h, z, // K
+					-h, h, z, // L
+					-q, h, -f, // I
+
+					-h, h, z, // M
+					-h, -h, z, // N
+					-q, -h, f, // O
+
+					-q, -h, f, // O
+					-q, h, f, // P
+					-h, h, z, // M
+
+					-q, h, f, // Q
+					-q, -h, f, // R
+					q, -h, f, // S
+
+					q, -h, f, // S
+					q, h, f, // T
+					-q, h, f, // Q
+
+					q, h, f, // U
+					q, -h, f, // V
+					h, -h, -z, // W
+
+					h, -h, -z, // W
+					h, h, -z, // Z
+					q, h, f, // U
+
+					h, h, -z, // A
+					q, h, -f, // B
+					z, h, z, // C
+
+					q, h, -f, // D
+					-q, h, -f, // E
+					z, h, z, // F
+
+					-q, h, -f, // G
+					-h, h, z, // H
+					z, h, z, // I
+
+					-h, h, z, // J
+					-q, h, f, // K
+					z, h, z, // L
+
+					-q, h, f, // M
+					q, h, f, // N
+					z, h, z, // O
+
+					q, h, f, // P
+					h, h, -z, // Q
+					z, h, z, // R
+
+					q, -h, -f, // A
+					h, -h, -z, // B
+					z, -h, z, // C
+
+					-q, -h, -f, // D
+					q, -h, -f, // E
+					z, -h, z, // F
+
+					-h, -h, z, // G
+					-q, -h, -f, // H
+					z, -h, z, // I
+
+					-q, -h, f, // J
+					-h, -h, z, // K
+					z, -h, z, // L
+
+					q, -h, f, // M
+					-q, -h, f, // N
+					z, -h, z, // O
+
+					h, -h, -z, // P
+					q, -h, f, // Q
+					z, -h, z,// R
+			};
+			prism[0] = hexagonalPrism;
+
+			float[] hexTex = 
+			{
+					0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
+					1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+					0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+					1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+
+			};
+			prism[1] = hexTex;
+
+			return prism;
+		}
+
+	}
+
+	private void setupVertices() {
+		GL4 gl = (GL4) GLContext.getCurrentGL();
+
+		// planet vertices, textures, and normals
+		float[][] ptnValues = PTNvalues();
+		float[] pvalues = ptnValues[0];
+		float[] tvalues = ptnValues[1];
+		float[] nvalues = ptnValues[2];
+
+		// xyz axes
+		float[][] Axes = getAxes();
+		float[] xAxis = Axes[0];
+		float[] yAxis = Axes[1];
+		float[] zAxis = Axes[2];
+
+		// hexagonal prism vertices and textures
+		hexPrism hexagonalPrism = new hexPrism();
+		float[][] prism = hexagonalPrism.getPrism();
+		float[] hexPvalues = prism[0];
+		float[] hexTex = prism[1];
+
+		//handle vao and vbo stuff
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
 		gl.glGenBuffers(8, vbo, 0);
@@ -638,11 +704,11 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		gl.glBufferData(GL_ARRAY_BUFFER, zBuf.limit() * 4, zBuf, GL_STATIC_DRAW);
 
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[6]);
-		FloatBuffer vertBuf2 = Buffers.newDirectFloatBuffer(pentagonalPrism);
-		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf2.limit()*4, vertBuf2, GL_STATIC_DRAW);
-		
+		FloatBuffer vertBuf2 = Buffers.newDirectFloatBuffer(hexPvalues);
+		gl.glBufferData(GL_ARRAY_BUFFER, vertBuf2.limit() * 4, vertBuf2, GL_STATIC_DRAW);
+
 		gl.glBindBuffer(GL_ARRAY_BUFFER, vbo[7]);
-		FloatBuffer texBuf2 = Buffers.newDirectFloatBuffer(texture_coordinates);
+		FloatBuffer texBuf2 = Buffers.newDirectFloatBuffer(hexTex);
 		gl.glBufferData(GL_ARRAY_BUFFER, texBuf2.limit() * 4, texBuf2, GL_STATIC_DRAW);
 
 	}
