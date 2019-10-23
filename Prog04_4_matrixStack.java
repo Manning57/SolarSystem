@@ -39,11 +39,9 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 	private int vao[] = new int[1];
 	private int vbo[] = new int[8];
 	private int vis = 1;
-	private int vis2 = 1;
-	private float cameraX, cameraY, cameraZ;
-	private float rotX, rotY, rotZ;
 	private float sphLocX, sphLocY, sphLocZ;
 	private float LocX, LocY, LocZ;
+	Camera camera = new Camera();
 
 	private GLSLUtils util = new GLSLUtils();
 
@@ -91,7 +89,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 
 	public Prog04_4_matrixStack() {
 		setTitle("Chapter4 - program4");
-		setSize(1250, 1000);
+		setSize(1000, 1000);
 		// Making sure we get a GL4 context for the canvas
 		GLProfile profile = GLProfile.get(GLProfile.GL4);
 		GLCapabilities capabilities = new GLCapabilities(profile);
@@ -240,44 +238,76 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 
 		// push view matrix onto the stack
 		mvStack.pushMatrix(); // Save global reference system
+		mvStack.translate(-camera.getXPos(), -camera.getYPos(), -camera.getZPos());
 
+		boolean panRight = false;
+		boolean panLeft = false;
+		boolean pitchUp = false;
+		boolean pitchDown = false;
+		boolean moveLeft = false;
+		boolean moveRight = false;
+		boolean moveForward = false;
+		boolean moveBackward = false;
+		boolean moveUp = false;
+		boolean moveDown = false;
+		
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
 				int keyCode = e.getKeyCode();
-				if (keyCode == 81) {// q, move up
-					cameraY = cameraY + 0.0005f;
-				}
-				if (keyCode == 65) {// a, strafe left
-					cameraX = cameraX - 0.0005f;
-				}
-				if (keyCode == 69) {// e, move down
-					cameraY = cameraY - 0.0005f;
-				}
-				if (keyCode == 68) {// d, strafe right
-					cameraX = cameraX + 0.0005f;
-				}
-				if (keyCode == 87) {// w, move forward
-					cameraZ = cameraZ - 0.0005f;
-				}
-				if (keyCode == 83) {// s move backward
-					cameraZ = cameraZ + 0.0005f;
-				}
 				if (keyCode == 39) {// --> pan right
-					//rotY = rotY + 0.1f;
 					mvStack.rotate(0.005, 0.0, 0.1, 0.0);
+					if (camera.getYRot() >= 36) {
+						camera.setYRot(0f);
+					} else {
+						camera.setYRot(camera.getYRot() + (float) (0.005f * 0.1));
+					}
+					System.out.println("Y Rot amount: " + camera.getYRot()*10 + " degrees");
 				}
 				if (keyCode == 37) {// <-- pan left
-					//rotY = rotY - 0.1f;
 					mvStack.rotate(0.005, 0.0, -0.1, 0.0);
+					if (camera.getYRot() >= 36 || camera.getYRot() <= -36) {
+						camera.setYRot(0f);
+					} else {
+						camera.setYRot(camera.getYRot() - (float) (0.005f * 0.1));
+					}
+					System.out.println("Y Rot amount: " + camera.getYRot()*10 + " degrees");
 				}
 				if (keyCode == 38) {// |^ pitch up
-					//rotX = rotX - 0.1f;
 					mvStack.rotate(0.005, -0.1, 00.0, 0.0);
+					if (camera.getXRot() >= 36) {
+						camera.setXRot(0f);
+					} else {
+						camera.setXRot(camera.getXRot() + (float) (0.005f * 0.1));
+					}
+					System.out.println("X Rot amount: " + camera.getXRot()*10 + " degrees");
 				}
 				if (keyCode == 40) {// |v pitch down
-					//rotX = rotX + 0.1f;
 					mvStack.rotate(0.005, 0.1, 0.0, 0.0);
+					if (camera.getXRot() >= 36) {
+						camera.setYRot(0f);
+					} else {
+						camera.setXRot(camera.getXRot() - (float) (0.005f * 0.1));
+					}
+					System.out.println("X Rot amount: " + camera.getXRot()*10 + " degrees");
+				}
+				if (keyCode == 81) {// q, move up
+					camera.setYPos(camera.getYPos() + 0.0005f);
+				}
+				if (keyCode == 65) {// a, strafe left
+					camera.setXPos(camera.getXPos() - 0.0005f);
+				}
+				if (keyCode == 69) {// e, move down
+					camera.setYPos(camera.getYPos() - 0.0005f);
+				}
+				if (keyCode == 68) {// d, strafe right
+					camera.setXPos(camera.getXPos() + 0.0005f);
+				}
+				if (keyCode == 87) {// w, move forward
+					camera.setZPos(camera.getZPos() - 0.0005f);
+				}
+				if (keyCode == 83) {// s move backward
+					camera.setZPos(camera.getZPos()+ 0.0005f);
 				}
 				if (keyCode == 32) {
 					if (vis > 0) {
@@ -288,15 +318,14 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 				}
 			}
 		});
+		
+		
 
-		mvStack.translate(-cameraX, -cameraY, -cameraZ);
 
 		double amt = (double) (System.currentTimeMillis()) / 1000.0;
 
 		gl.glUniformMatrix4fv(proj_loc, 1, false, pMat.getFloatValues(), 0);
 		mvStack.pushMatrix(); // Save camera's reference system
-		// mvStack.rotate((System.currentTimeMillis()) / 100.0, 1.0, 1.0, 1.0); //
-		// Rotate camera
 
 		// ----------------------XYZ cords
 		mvStack.translate(LocX, LocY, LocZ); // Translate to origin
@@ -369,6 +398,95 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 
 	}
 
+	private Matrix3D lookAt(Point3D eye, Point3D target, Vector3D y) {
+		Vector3D eyeV = new Vector3D(eye);
+		Vector3D targetV = new Vector3D(target);
+		Vector3D fwd = (targetV.minus(eyeV)).normalize();
+		Vector3D side = (fwd.cross(y)).normalize();
+		Vector3D up = (side.cross(fwd)).normalize();
+		Matrix3D look = new Matrix3D();
+		look.setElementAt(0, 0, side.getX());
+		look.setElementAt(1, 0, up.getX());
+		look.setElementAt(2, 0, -fwd.getX());
+		look.setElementAt(3, 0, 0.0f);
+		look.setElementAt(0, 1, side.getY());
+		look.setElementAt(1, 1, up.getY());
+		look.setElementAt(2, 1, -fwd.getY());
+		look.setElementAt(3, 1, 0.0f);
+		look.setElementAt(0, 2, side.getZ());
+		look.setElementAt(1, 2, up.getZ());
+		look.setElementAt(2, 2, -fwd.getZ());
+		look.setElementAt(3, 2, 0.0f);
+		look.setElementAt(0, 3, side.dot(eyeV.mult(-1)));
+		look.setElementAt(1, 3, up.dot(eyeV.mult(-1)));
+		look.setElementAt(2, 3, (fwd.mult(-1)).dot(eyeV.mult(-1)));
+		look.setElementAt(3, 3, 1.0f);
+		return look;
+	}
+	
+	public class Camera {
+		private float cameraX, cameraY, cameraZ;
+		private float rotX, rotY, rotZ;
+		private float xAxis, yAxis, zAxis;
+
+		public void setupCamera(float Xp, float Yp, float Zp, float Xr, float Yr, float Zr) {
+			cameraX = Xp;
+			cameraY = Yp;
+			cameraZ = Zp;
+			rotX = Xr;
+			rotY = Yr;
+			rotZ = Zr;
+		}
+
+		public float getXPos() {
+			return cameraX;
+		}
+
+		public void setXPos(float XPos) {
+			cameraX = XPos;
+		}
+
+		public float getYPos() {
+			return cameraY;
+		}
+
+		public void setYPos(float YPos) {
+			cameraY = YPos;
+		}
+
+		public float getZPos() {
+			return cameraZ;
+		}
+
+		public void setZPos(float ZPos) {
+			cameraZ = ZPos;
+		}
+
+		public float getXRot() {
+			return rotX;
+		}
+
+		public void setXRot(float XRot) {
+			rotX = XRot;
+		}
+
+		public float getYRot() {
+			return rotY;
+		}
+
+		public void setYRot(float YRot) {
+			rotY = YRot;
+		}
+
+		public float setZRot() {
+			return rotZ;
+		}
+
+		public void setZRot(float ZRot) {
+			rotZ = ZRot;
+		}
+	}
+
 	public void init(GLAutoDrawable drawable) {
 		GL4 gl = (GL4) GLContext.getCurrentGL();
 		rendering_program = createShaderProgram();
@@ -376,17 +494,16 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		// set up vertices of spheres and pentagonal prisms
 		setupVertices();
 
-		// initializing XYS for camera location/rotation, sphere location, and
-		// pentagonal prism location
-		cameraX = 0.0f;
-		cameraY = 0.0f;
-		cameraZ = 12.0f;
-		rotX = 0.0f;
-		rotY = 0.0f;
-		rotZ = 0.0f;
+		// initializing XYS for camera location/rotation
+		// Xp Yp Zp Xr Yr Zr
+		camera.setupCamera(0f, 0f, 12f, 0f, 0f, 0f);
+
+		// initializing planet location
 		sphLocX = 0.0f;
 		sphLocY = 0.0f;
 		sphLocZ = 0.0f;
+
+		// initializing hex prism location
 		LocX = 0.0f;
 		LocY = 0.0f;
 		LocZ = 0.0f;
@@ -538,108 +655,42 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 			float z = 0.0f;
 
 			float[] hexagonalPrism = {
-					//
-					h, h, -z, // A
-					h, -h, -z, // B
-					q, -h, -f, // C
-
-					q, -h, -f, // C
-					q, h, -f, // D
-					h, h, -z, // A
-
-					q, h, -f, // E
-					q, -h, -f, // F
-					-q, -h, -f, // G
-
-					-q, -h, -f, // G
-					-q, h, -f, // H
-					q, h, -f, // E
-
-					-q, h, -f, // I
-					-q, -h, -f, // J
-					-h, -h, z, // K
-
-					-h, -h, z, // K
-					-h, h, z, // L
-					-q, h, -f, // I
-
-					-h, h, z, // M
-					-h, -h, z, // N
-					-q, -h, f, // O
-
-					-q, -h, f, // O
-					-q, h, f, // P
-					-h, h, z, // M
-
-					-q, h, f, // Q
-					-q, -h, f, // R
-					q, -h, f, // S
-
-					q, -h, f, // S
-					q, h, f, // T
-					-q, h, f, // Q
-
-					q, h, f, // U
-					q, -h, f, // V
-					h, -h, -z, // W
-
-					h, -h, -z, // W
-					h, h, -z, // Z
-					q, h, f, // U
-
-					h, h, -z, // A
-					q, h, -f, // B
-					z, h, z, // C
-
-					q, h, -f, // D
-					-q, h, -f, // E
-					z, h, z, // F
-
-					-q, h, -f, // G
-					-h, h, z, // H
-					z, h, z, // I
-
-					-h, h, z, // J
-					-q, h, f, // K
-					z, h, z, // L
-
-					-q, h, f, // M
-					q, h, f, // N
-					z, h, z, // O
-
-					q, h, f, // P
-					h, h, -z, // Q
-					z, h, z, // R
-
-					q, -h, -f, // A
-					h, -h, -z, // B
-					z, -h, z, // C
-
-					-q, -h, -f, // D
-					q, -h, -f, // E
-					z, -h, z, // F
-
-					-h, -h, z, // G
-					-q, -h, -f, // H
-					z, -h, z, // I
-
-					-q, -h, f, // J
-					-h, -h, z, // K
-					z, -h, z, // L
-
-					q, -h, f, // M
-					-q, -h, f, // N
-					z, -h, z, // O
-
-					h, -h, -z, // P
-					q, -h, f, // Q
-					z, -h, z,// R
+					// sq 1
+					h, h, -z, h, -h, -z, q, -h, -f, // tr 1
+					q, -h, -f, q, h, -f, h, h, -z, // tr 2
+					// sq 2
+					q, h, -f, q, -h, -f, -q, -h, -f, // tr 3
+					-q, -h, -f, -q, h, -f, q, h, -f, // tr 4
+					// sq 3
+					-q, h, -f, -q, -h, -f, -h, -h, z, // tr 5
+					-h, -h, z, -h, h, z, -q, h, -f, // tr 6
+					// sq 4
+					-h, h, z, -h, -h, z, -q, -h, f, // tr 7
+					-q, -h, f, -q, h, f, -h, h, z, // tr 8
+					// sq 5
+					-q, h, f, -q, -h, f, q, -h, f, // tr 9
+					q, -h, f, q, h, f, -q, h, f, // tr 10
+					// sq 6
+					q, h, f, q, -h, f, h, -h, -z, // tr 11
+					h, -h, -z, h, h, -z, q, h, f, // tr 12
+					// hexagon 1
+					h, h, -z, q, h, -f, z, h, z, // tr 13
+					q, h, -f, -q, h, -f, z, h, z, // tr 14
+					-q, h, -f, -h, h, z, z, h, z, // tr 15
+					-h, h, z, -q, h, f, z, h, z, // tr 16
+					-q, h, f, q, h, f, z, h, z, // tr 17
+					q, h, f, h, h, -z, z, h, z, // tr 18
+					// hexagon 2
+					q, -h, -f, h, -h, -z, z, -h, z, // tr 19
+					-q, -h, -f, q, -h, -f, z, -h, z, // tr 20
+					-h, -h, z, -q, -h, -f, z, -h, z, // tr 21
+					-q, -h, f, -h, -h, z, z, -h, z, // tr 22
+					q, -h, f, -q, -h, f, z, -h, z, // tr 23
+					h, -h, -z, q, -h, f, z, -h, z, // tr 24
 			};
 			prism[0] = hexagonalPrism;
 
-			float[] hexTex = 
-			{
-					0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+			float[] hexTex = { 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 					1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f,
 					1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
 					0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -674,7 +725,7 @@ public class Prog04_4_matrixStack extends JFrame implements GLEventListener {
 		float[] hexPvalues = prism[0];
 		float[] hexTex = prism[1];
 
-		//handle vao and vbo stuff
+		// handle vao and vbo stuff
 		gl.glGenVertexArrays(vao.length, vao, 0);
 		gl.glBindVertexArray(vao[0]);
 		gl.glGenBuffers(8, vbo, 0);
